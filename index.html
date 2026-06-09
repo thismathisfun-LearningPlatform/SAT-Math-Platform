@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SAT Math Platform</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css"/>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f6f6f4;
+    --bg3: #efefec;
+    --text: #1a1a18;
+    --text2: #6b6b66;
+    --text3: #a0a09a;
+    --border: rgba(0,0,0,0.10);
+    --border2: rgba(0,0,0,0.18);
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --blue-text: #0C447C;
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --green-text: #27500A;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --red-text: #791F1F;
+    --amber-bg: #FAEEDA;
+    --amber-text: #633806;
+    --purple: #534AB7;
+    --purple-bg: #EEEDFE;
+    --purple-text: #3C3489;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #f0f0ec;
+      --text2: #a0a098;
+      --text3: #6a6a64;
+      --border: rgba(255,255,255,0.10);
+      --border2: rgba(255,255,255,0.18);
+      --blue-bg: #0c2d4e;
+      --blue-text: #85B7EB;
+      --green-bg: #172d08;
+      --green-text: #97C459;
+      --red-bg: #2e1010;
+      --red-text: #F09595;
+      --amber-bg: #2e1e08;
+      --amber-text: #FAC775;
+      --purple-bg: #1e1b40;
+      --purple-text: #AFA9EC;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* Layout */
+  .app { max-width: 800px; margin: 0 auto; min-height: 100vh; background: var(--bg); }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .page-pad { padding: 1.5rem; }
+
+  /* Typography */
+  h1 { font-size: 22px; font-weight: 600; }
+  h2 { font-size: 18px; font-weight: 600; }
+  h3 { font-size: 15px; font-weight: 600; }
+  .sec-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; margin: 1.25rem 0 8px; }
+  .muted { color: var(--text2); font-size: 13px; }
+
+  /* Utility */
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row-top { display: flex; align-items: flex-start; gap: 10px; }
+  .spacer { flex: 1; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+
+  /* Cards */
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+  .card-surface { background: var(--bg2); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+  .stat-card { background: var(--bg2); border-radius: var(--radius); padding: .85rem 1rem; text-align: center; }
+  .stat-card .sv { font-size: 22px; font-weight: 600; color: var(--text); }
+  .stat-card .sl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+  .badge-easy { background: var(--green-bg); color: var(--green-text); }
+  .badge-med { background: var(--amber-bg); color: var(--amber-text); }
+  .badge-hard { background: var(--red-bg); color: var(--red-text); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue-text); }
+  .badge-purple { background: var(--purple-bg); color: var(--purple-text); }
+  .badge-flag { background: var(--amber-bg); color: var(--amber-text); }
+  .badge-num { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 0 4px; }
+
+  /* Buttons */
+  button, .btn { font-family: inherit; cursor: pointer; }
+  .btn { background: transparent; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 8px 14px; font-size: 13px; color: var(--text); transition: background .12s; }
+  .btn:hover { background: var(--bg2); }
+  .btn-primary { background: var(--text); color: var(--bg); border: none; padding: 10px 22px; font-size: 14px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-family: inherit; transition: opacity .12s; }
+  .btn-primary:hover { opacity: .85; }
+  .btn-primary:disabled { opacity: .35; cursor: default; }
+  .btn-icon { background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 7px 10px; color: var(--text2); cursor: pointer; font-size: 15px; transition: background .12s; }
+  .btn-icon:hover { background: var(--bg2); color: var(--text); }
+  .btn-flag { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-size: 12px; border-radius: var(--radius); cursor: pointer; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); transition: all .12s; font-family: inherit; }
+  .btn-flag:hover, .btn-flag.flagged { background: var(--amber-bg); border-color: #EF9F27; color: var(--amber-text); }
+  .btn-discuss { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-size: 12px; border-radius: var(--radius); cursor: pointer; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); transition: all .12s; font-family: inherit; }
+  .btn-discuss:hover, .btn-discuss.active { background: var(--purple-bg); border-color: var(--purple); color: var(--purple-text); }
+
+  /* Forms */
+  input, select, textarea {
+    font-family: inherit; font-size: 14px; color: var(--text);
+    background: var(--bg); border: 0.5px solid var(--border2);
+    border-radius: var(--radius); padding: 9px 12px; width: 100%;
+    transition: border-color .12s; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--blue); }
+  textarea { resize: vertical; line-height: 1.6; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 2px; border-bottom: 0.5px solid var(--border); margin-bottom: 1.25rem; overflow-x: auto; }
+  .tab { padding: 9px 14px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -0.5px; background: none; border-top: none; border-left: none; border-right: none; white-space: nowrap; transition: color .12s; font-family: inherit; }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+  /* Progress */
+  .prog-bar { height: 3px; background: var(--border); }
+  .prog-fill { height: 3px; background: var(--blue); transition: width .3s; }
+  .mini-bar { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; }
+  .mini-fill { height: 4px; border-radius: 2px; background: var(--blue); }
+  .err-fill { background: #E24B4A; }
+
+  /* Header */
+  .top-bar { display: flex; align-items: center; gap: 10px; padding: .85rem 1.25rem; border-bottom: 0.5px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+
+  /* Choices */
+  .choice { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all .12s; margin-bottom: 8px; }
+  .choice:hover { border-color: var(--border2); background: var(--bg2); }
+  .choice.sel { border-color: var(--blue); background: var(--blue-bg); }
+  .choice.correct { border-color: var(--green); background: var(--green-bg); }
+  .choice.wrong { border-color: var(--red); background: var(--red-bg); }
+  .cletter { width: 28px; height: 28px; border-radius: 50%; background: var(--bg2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; color: var(--text2); transition: all .12s; }
+  .choice.sel .cletter { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .choice.correct .cletter { background: var(--green); border-color: var(--green); color: #fff; }
+  .choice.wrong .cletter { background: var(--red); border-color: var(--red); color: #fff; }
+  .choice-text { font-size: 14px; color: var(--text); }
+
+  /* Timer */
+  .timer { display: flex; align-items: center; gap: 5px; background: var(--bg2); border-radius: 20px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--text); transition: all .2s; }
+  .timer.warn { background: var(--amber-bg); color: var(--amber-text); }
+
+  /* Feedback */
+  .fb { padding: 12px 14px; border-radius: var(--radius); font-size: 13px; line-height: 1.6; margin-top: 12px; }
+  .fb-ok { background: var(--green-bg); color: var(--green-text); }
+  .fb-bad { background: var(--red-bg); color: var(--red-text); }
+  .fb-info { background: var(--blue-bg); color: var(--blue-text); }
+  .fb-warn { background: var(--amber-bg); color: var(--amber-text); }
+
+  /* Scratchpad */
+  .scratch-area { margin-top: 14px; }
+  .scratch-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .scratch-tools { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; flex-wrap: wrap; }
+  .scratch-tools .btn { padding: 5px 11px; font-size: 12px; }
+  .mode-active { background: var(--bg2) !important; border-color: var(--border2) !important; }
+  textarea.scratch { min-height: 80px; font-family: 'Courier New', monospace; font-size: 13px; background: var(--bg2); }
+  .draw-canvas { border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg2); cursor: crosshair; display: block; max-width: 100%; }
+  .color-swatch { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; display: inline-block; transition: border-color .12s; }
+  .color-swatch.active { border-color: var(--text); }
+
+  /* Student rows */
+  .s-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+  .s-row:last-child { border-bottom: none; }
+  .s-row-head { background: var(--bg2); font-size: 11px; font-weight: 600; color: var(--text2); }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--blue-bg); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--blue-text); flex-shrink: 0; }
+  .avatar-sm { width: 28px; height: 28px; font-size: 11px; }
+
+  /* Work entries */
+  .work-card { background: var(--bg2); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 10px; }
+  .work-code { font-family: 'Courier New', monospace; font-size: 13px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; color: var(--text); white-space: pre-wrap; line-height: 1.6; }
+  .teacher-note-bubble { background: var(--blue-bg); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; color: var(--blue-text); margin-top: 8px; }
+
+  /* Score ring */
+  .score-ring { width: 90px; height: 90px; position: relative; margin: 0 auto 1.25rem; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .ring-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+  .ring-label .rv { font-size: 20px; font-weight: 700; color: var(--text); display: block; }
+  .ring-label .rl { font-size: 10px; color: var(--text2); }
+
+  /* Discussion */
+  .disc-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; }
+  .disc-card.pinned { border-left: 3px solid var(--purple); }
+
+  /* Login */
+  .login-wrap { max-width: 360px; margin: 0 auto; padding: 3rem 1.5rem; }
+  .login-logo { width: 52px; height: 52px; background: var(--blue-bg); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+
+  /* Topic cards */
+  .topic-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; cursor: pointer; transition: border-color .15s, background .15s; }
+  .topic-card:hover { border-color: var(--border2); background: var(--bg2); }
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+
+  /* Diff filter pills */
+  .diff-filter { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dpill { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2); font-family: inherit; }
+  .dpill.a-all { background: var(--bg); color: var(--text); border-color: var(--border2); }
+  .dpill.a-easy { background: var(--green-bg); color: var(--green-text); border-color: #97C459; }
+  .dpill.a-med { background: var(--amber-bg); color: var(--amber-text); border-color: #EF9F27; }
+  .dpill.a-hard { background: var(--red-bg); color: var(--red-text); border-color: #F09595; }
+
+  /* Misc */
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 1rem 0; }
+  .qlog-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg2); border-radius: var(--radius); margin-bottom: 6px; font-size: 13px; }
+  .notice { display: flex; align-items: center; gap: 8px; background: var(--purple-bg); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 1rem; font-size: 13px; color: var(--purple-text); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+  <div class="login-wrap">
+    <div class="login-logo"><i class="ti ti-math-function" style="font-size:24px;color:var(--blue);"></i></div>
+    <h1 style="text-align:center;margin-bottom:6px;">SAT Math</h1>
+    <p style="text-align:center;color:var(--text2);margin-bottom:1.5rem;">Sign in to continue</p>
+    <div id="login-err" style="display:none;" class="fb fb-bad" role="alert"></div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px;">Username</label>
+      <input id="login-user" type="text" placeholder="e.g. student1 or teacher"/>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px;">Password</label>
+      <input id="login-pass" type="password" placeholder="••••••"/>
+    </div>
+    <button class="btn-primary" style="width:100%;" onclick="doLogin()">Sign in</button>
+    <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--text3);">Demo accounts: student1/pass1 · student2/pass2 · student3/pass3 · teacher/admin</p>
+  </div>
+</div>
+
+<!-- STUDENT HOME -->
+<div id="student-screen" class="screen">
+  <div class="top-bar">
+    <div><div style="font-size:16px;font-weight:600;" id="s-greeting">Hello!</div><div class="muted" style="font-size:11px;">SAT Math practice</div></div>
+    <div class="spacer"></div>
+    <div class="diff-filter">
+      <button class="dpill a-all" onclick="setDiff('all',this)">All</button>
+      <button class="dpill" onclick="setDiff('easy',this)">Easy</button>
+      <button class="dpill" onclick="setDiff('medium',this)">Med</button>
+      <button class="dpill" onclick="setDiff('hard',this)">Hard</button>
+    </div>
+    <button class="btn-icon" onclick="doLogout()" aria-label="Sign out"><i class="ti ti-logout"></i></button>
+  </div>
+  <div class="page-pad">
+    <div class="grid4" style="margin-bottom:1.25rem;" id="s-stats"></div>
+    <div id="discuss-notice" style="display:none;" class="notice">
+      <i class="ti ti-messages" style="font-size:16px;flex-shrink:0;"></i>
+      <span style="flex:1;" id="discuss-notice-text"></span>
+      <button class="btn" style="font-size:12px;padding:5px 10px;" onclick="showScreen('discussion-screen');renderStudentDiscussion();">View</button>
+    </div>
+    <div class="sec-label">Topics</div>
+    <div class="topic-grid" id="topic-grid"></div>
+  </div>
+</div>
+
+<!-- DISCUSSION (student) -->
+<div id="discussion-screen" class="screen">
+  <div class="top-bar">
+    <button class="btn-icon" onclick="renderStudent()" aria-label="Back"><i class="ti ti-arrow-left"></i></button>
+    <h2 style="font-size:16px;">Class discussion board</h2>
+    <div class="spacer"></div>
+    <span class="muted" id="disc-s-count"></span>
+  </div>
+  <div class="page-pad" id="disc-s-list"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+  <div class="top-bar">
+    <button class="btn-icon" onclick="endQuiz()" aria-label="Back"><i class="ti ti-arrow-left"></i></button>
+    <span style="font-size:14px;font-weight:600;flex:1;" id="q-topic-lbl"></span>
+    <span id="q-diff-badge"></span>
+    <div class="timer" id="timer"><i class="ti ti-clock" style="font-size:13px;"></i><span id="timer-val">0s</span></div>
+    <span class="muted" style="font-size:12px;" id="q-prog"></span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="page-pad">
+    <div class="muted" style="font-size:12px;margin-bottom:8px;" id="q-num"></div>
+    <div style="font-size:15px;line-height:1.65;margin-bottom:1.25rem;" id="q-text"></div>
+
+    <!-- Scratchpad -->
+    <div class="scratch-area">
+      <div class="scratch-label"><i class="ti ti-pencil"></i> Show your work <span style="font-size:11px;">(your teacher will see this)</span></div>
+      <div class="scratch-tools">
+        <button class="btn mode-active" id="btn-type" onclick="setMode('text')"><i class="ti ti-keyboard"></i> Type</button>
+        <button class="btn" id="btn-draw" onclick="setMode('draw')"><i class="ti ti-pencil"></i> Draw</button>
+        <div id="draw-controls" style="display:none;gap:6px;align-items:center;display:none;">
+          <span class="color-swatch active" style="background:#1a1a18;" data-color="#1a1a18" onclick="setPenColor(this)"></span>
+          <span class="color-swatch" style="background:#185FA5;" data-color="#185FA5" onclick="setPenColor(this)"></span>
+          <span class="color-swatch" style="background:#A32D2D;" data-color="#A32D2D" onclick="setPenColor(this)"></span>
+          <span class="color-swatch" style="background:#3B6D11;" data-color="#3B6D11" onclick="setPenColor(this)"></span>
+          <button class="btn" onclick="clearCanvas()" style="padding:4px 9px;font-size:12px;"><i class="ti ti-eraser"></i> Clear</button>
+        </div>
+      </div>
+      <textarea class="scratch" id="scratch-text" placeholder="Write your steps here, e.g. 3x + 7 = 22 → 3x = 15 → x = 5"></textarea>
+      <div id="canvas-wrap" style="display:none;margin-top:6px;">
+        <canvas id="draw-canvas" class="draw-canvas" width="700" height="120"></canvas>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;" id="choices-wrap"></div>
+    <div id="fb-wrap"></div>
+    <div id="flag-area" style="display:none;margin-top:12px;"></div>
+  </div>
+  <div style="padding:.85rem 1.5rem;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+    <span class="muted" style="font-size:12px;" id="q-time-note"></span>
+    <button class="btn-primary" id="next-btn" onclick="nextQ()" disabled>Next</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="screen">
+  <div class="top-bar">
+    <button class="btn-icon" onclick="endQuiz()" aria-label="Back"><i class="ti ti-arrow-left"></i></button>
+    <h2 id="res-title" style="font-size:16px;">Session complete</h2>
+  </div>
+  <div class="page-pad">
+    <p style="text-align:center;color:var(--text2);margin-bottom:1.25rem;font-size:13px;" id="res-sub"></p>
+    <div class="score-ring">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="37" fill="none" stroke="var(--border)" stroke-width="7"/>
+        <circle cx="45" cy="45" r="37" fill="none" stroke="var(--blue)" stroke-width="7" stroke-linecap="round" id="score-arc" stroke-dasharray="0 233"/>
+      </svg>
+      <div class="ring-label"><span class="rv" id="res-pct">0%</span><span class="rl">correct</span></div>
+    </div>
+    <div class="grid3" style="margin-bottom:1.25rem;" id="res-stats"></div>
+    <div class="sec-label">Question log</div>
+    <div id="qlog-wrap" style="margin-bottom:1.25rem;"></div>
+    <div class="row">
+      <button class="btn" onclick="endQuiz()">Back to topics</button>
+      <button class="btn-primary" onclick="retryTopic()">Try again</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEACHER -->
+<div id="teacher-screen" class="screen">
+  <div class="top-bar">
+    <div><div style="font-size:16px;font-weight:600;">Teacher dashboard</div><div class="muted" style="font-size:11px;" id="t-sub">Ms. Thompson</div></div>
+    <div class="spacer"></div>
+    <button class="btn-icon" onclick="doLogout()" aria-label="Sign out"><i class="ti ti-logout"></i></button>
+  </div>
+  <div class="page-pad" style="padding-bottom:0;">
+    <div class="tab-bar">
+      <button class="tab active" onclick="showTab('t-overview',this)">Overview</button>
+      <button class="tab" onclick="showTab('t-discuss',this)">Discussion <span class="badge-num badge-purple" id="disc-badge" style="display:none;"></span></button>
+      <button class="tab" onclick="showTab('t-work',this)">Student work <span class="badge-num" style="background:var(--red-bg);color:var(--red-text);" id="work-badge-num" style="display:none;"></span></button>
+      <button class="tab" onclick="showTab('t-students',this)">Students</button>
+      <button class="tab" onclick="showTab('t-upload',this)">Upload</button>
+    </div>
+  </div>
+  <div class="page-pad" style="padding-top:.5rem;">
+    <div id="t-overview"></div>
+    <div id="t-discuss" style="display:none;"></div>
+    <div id="t-work" style="display:none;"></div>
+    <div id="t-students" style="display:none;"></div>
+    <div id="t-upload" style="display:none;"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+/* ==================== DATA ==================== */
+const USERS = {
+  student1:{role:'student',name:'Alex Johnson',pass:'pass1'},
+  student2:{role:'student',name:'Maya Patel',pass:'pass2'},
+  student3:{role:'student',name:'Carlos Rivera',pass:'pass3'},
+  teacher:{role:'teacher',name:'Ms. Thompson',pass:'admin'}
+};
+
+function defaultState() {
+  return {
+    topics:[
+      {id:'algebra',name:'Algebra',icon:'ti-variable'},
+      {id:'geometry',name:'Geometry',icon:'ti-shape'},
+      {id:'data',name:'Data & statistics',icon:'ti-chart-bar'},
+      {id:'advanced',name:'Advanced math',icon:'ti-math-function'},
+      {id:'wordprob',name:'Word problems',icon:'ti-file-text'},
+      {id:'ratios',name:'Ratios & percents',icon:'ti-percentage'},
+    ],
+    questions:[
+      {id:'q1',topicId:'algebra',diff:'easy',q:'If 3x + 7 = 22, what is x?',choices:['3','5','7','4'],answer:1,exp:'3x = 15, so x = 5'},
+      {id:'q2',topicId:'algebra',diff:'easy',q:'If y = 2x − 1 and x = 4, what is y?',choices:['6','7','9','8'],answer:1,exp:'y = 2(4) − 1 = 7'},
+      {id:'q3',topicId:'algebra',diff:'medium',q:'Solve: 2(x − 3) = x + 4',choices:['8','10','7','5'],answer:1,exp:'2x − 6 = x + 4 → x = 10'},
+      {id:'q4',topicId:'algebra',diff:'medium',q:'Solve for x: 5x − 2 = 3x + 8',choices:['3','4','5','6'],answer:2,exp:'2x = 10 → x = 5'},
+      {id:'q5',topicId:'algebra',diff:'hard',q:'If 2x² − 8 = 0, what are the solutions?',choices:['x = 2 only','x = ±2','x = ±4','x = 4'],answer:1,exp:'x² = 4 → x = ±2'},
+      {id:'q6',topicId:'algebra',diff:'hard',q:'A linear function passes through (0,3) and (2,7). What is f(5)?',choices:['11','13','12','10'],answer:1,exp:'slope = 2, f(x) = 2x + 3, f(5) = 13'},
+      {id:'q7',topicId:'geometry',diff:'easy',q:'A rectangle has length 12 and width 5. What is its area?',choices:['34','60','17','70'],answer:1,exp:'A = 12 × 5 = 60'},
+      {id:'q8',topicId:'geometry',diff:'easy',q:'What is the sum of interior angles of a triangle?',choices:['90°','270°','180°','360°'],answer:2,exp:'Always 180°'},
+      {id:'q9',topicId:'geometry',diff:'medium',q:'A circle has radius 6. What is its circumference? (π ≈ 3.14)',choices:['18.84','37.68','28.26','12.56'],answer:1,exp:'C = 2πr = 37.68'},
+      {id:'q10',topicId:'geometry',diff:'medium',q:'Two supplementary angles; one is 65°. What is the other?',choices:['25°','115°','35°','105°'],answer:1,exp:'180 − 65 = 115°'},
+      {id:'q11',topicId:'geometry',diff:'hard',q:'A right triangle has legs 5 and 12. What is the hypotenuse?',choices:['13','14','15','17'],answer:0,exp:'√(25 + 144) = √169 = 13'},
+      {id:'q12',topicId:'data',diff:'easy',q:'Ages: 14, 16, 15, 17, 13. What is the mean?',choices:['14','15','16','17'],answer:1,exp:'75 ÷ 5 = 15'},
+      {id:'q13',topicId:'data',diff:'easy',q:'Dataset: 3, 7, 7, 9, 11. What is the mode?',choices:['9','3','7','11'],answer:2,exp:'7 appears twice'},
+      {id:'q14',topicId:'data',diff:'medium',q:'Scores: 80, 90, 70. What 4th score gives an average of 85?',choices:['95','100','90','85'],answer:1,exp:'85 × 4 − 240 = 100'},
+      {id:'q15',topicId:'data',diff:'hard',q:'Which measure is most affected by an extreme outlier?',choices:['Mode','Median','Mean','Range'],answer:2,exp:'Mean uses all values equally'},
+      {id:'q16',topicId:'advanced',diff:'easy',q:'What is x² − 5x + 6 when x = 3?',choices:['0','6','3','−6'],answer:0,exp:'9 − 15 + 6 = 0'},
+      {id:'q17',topicId:'advanced',diff:'medium',q:'Factor: x² + 5x + 6',choices:['(x+2)(x+3)','(x+1)(x+6)','(x−2)(x−3)','(x−1)(x−6)'],answer:0,exp:'Find factors of 6 adding to 5'},
+      {id:'q18',topicId:'advanced',diff:'medium',q:'If f(x) = 3x² − 2, what is f(−2)?',choices:['10','14','−14','−2'],answer:0,exp:'3(4) − 2 = 10'},
+      {id:'q19',topicId:'advanced',diff:'hard',q:'Solve: x² − 4x + 3 = 0',choices:['x = 1, 3','x = 2, 3','x = −1, −3','x = 4'],answer:0,exp:'(x−1)(x−3) = 0'},
+      {id:'q20',topicId:'advanced',diff:'hard',q:'If g(x) = 2x+1 and h(x) = x², what is h(g(2))?',choices:['25','10','5','15'],answer:0,exp:'g(2) = 5, h(5) = 25'},
+      {id:'q21',topicId:'wordprob',diff:'easy',q:'A train travels 60 mph for 2.5 hours. How far does it travel?',choices:['120 mi','150 mi','145 mi','160 mi'],answer:1,exp:'d = 60 × 2.5 = 150'},
+      {id:'q22',topicId:'wordprob',diff:'medium',q:'A store offers 25% off an $80 item. What is the sale price?',choices:['$55','$60','$65','$70'],answer:1,exp:'80 × 0.75 = 60'},
+      {id:'q23',topicId:'wordprob',diff:'medium',q:'Jane earns $15/hr, works 8 hrs, and pays 20% tax. Take-home?',choices:['$96','$120','$84','$108'],answer:0,exp:'120 × 0.80 = $96'},
+      {id:'q24',topicId:'wordprob',diff:'hard',q:'A 200L tank is 40% full. How many more liters to fill it?',choices:['80L','120L','100L','140L'],answer:1,exp:'200 − 80 = 120L'},
+      {id:'q25',topicId:'ratios',diff:'easy',q:'What is 35% of 200?',choices:['60','70','65','75'],answer:1,exp:'0.35 × 200 = 70'},
+      {id:'q26',topicId:'ratios',diff:'easy',q:'A class of 30 has 12 boys. What % are girls?',choices:['40%','60%','50%','55%'],answer:1,exp:'18 / 30 = 60%'},
+      {id:'q27',topicId:'ratios',diff:'medium',q:'Price rises from $40 to $52. What is the % increase?',choices:['25%','28%','30%','20%'],answer:2,exp:'12 / 40 = 30%'},
+      {id:'q28',topicId:'ratios',diff:'hard',q:'Simplify the ratio 36:24.',choices:['3:2','2:3','4:3','6:4'],answer:0,exp:'GCD = 12 → 3:2'},
+    ],
+    videos:[
+      {id:'v1',topicId:'algebra',title:'Solving linear equations',url:'https://youtube.com',dur:'8:30'},
+      {id:'v2',topicId:'geometry',title:'Circle theorems explained',url:'https://youtube.com',dur:'12:00'},
+    ],
+    studentData:{
+      student1:{done:6,correct:4,totalTime:110,topicData:{algebra:{done:3,correct:2,totalTime:55},geometry:{done:3,correct:2,totalTime:55}}},
+      student2:{done:4,correct:2,totalTime:90,topicData:{algebra:{done:4,correct:2,totalTime:90}}},
+      student3:{done:8,correct:7,totalTime:120,topicData:{algebra:{done:4,correct:4,totalTime:55},data:{done:4,correct:3,totalTime:65}}},
+    },
+    workLog:[
+      {id:'w1',studentId:'student1',studentName:'Alex Johnson',qId:'q1',qText:'If 3x + 7 = 22, what is x?',topicId:'algebra',diff:'easy',correct:true,time:18,scratchText:'3x + 7 = 22\n3x = 15\nx = 5',scratchImg:null,teacherNote:'',flagged:false,ts:Date.now()-3600000},
+      {id:'w2',studentId:'student1',studentName:'Alex Johnson',qId:'q3',qText:'Solve: 2(x − 3) = x + 4',topicId:'algebra',diff:'medium',correct:false,time:42,scratchText:'2x - 3 = x + 4\nx = 7',scratchImg:null,teacherNote:'',flagged:true,ts:Date.now()-3500000},
+      {id:'w3',studentId:'student2',studentName:'Maya Patel',qId:'q5',qText:'If 2x² − 8 = 0, what are the solutions?',topicId:'algebra',diff:'hard',correct:false,time:55,scratchText:'2x^2 = 8\nx^2 = 4\nx = 2',scratchImg:null,teacherNote:'',flagged:true,ts:Date.now()-1800000},
+      {id:'w4',studentId:'student3',studentName:'Carlos Rivera',qId:'q12',qText:'Ages: 14, 16, 15, 17, 13. What is the mean?',topicId:'data',diff:'easy',correct:true,time:12,scratchText:'14+16+15+17+13 = 75\n75 / 5 = 15',scratchImg:null,teacherNote:'Great work, Carlos!',flagged:false,ts:Date.now()-900000},
+    ],
+    discussionItems:[
+      {id:'d1',qId:'q3',qText:'Solve: 2(x − 3) = x + 4',topicId:'algebra',diff:'medium',teacherNote:'Students often forget to distribute the 2 on the left side — common mistake worth reviewing together.',pinned:true,studentFlags:['student1','student2'],addedBy:'teacher',ts:Date.now()-3500000},
+      {id:'d2',qId:'q5',qText:'If 2x² − 8 = 0, what are the solutions?',topicId:'algebra',diff:'hard',teacherNote:'Students find only the positive root. The ± is easy to miss!',pinned:false,studentFlags:['student2'],addedBy:'teacher',ts:Date.now()-1800000},
+    ],
+    studentFlags:{},
+  };
+}
+
+let STATE = (() => { try { return JSON.parse(localStorage.getItem('sat_v4') || 'null') || defaultState(); } catch(e) { return defaultState(); } })();
+function saveState() { try { localStorage.setItem('sat_v4', JSON.stringify(STATE)); } catch(e) {} }
+
+/* ==================== STATE ==================== */
+let CU = null, currentDiff = 'all', currentTopic = null, currentQList = [], currentQIdx = 0;
+let sessionResults = [], answered = false, timerInterval = null, qStart = 0;
+let drawMode = 'text', drawing = false, lastX = 0, lastY = 0, penColor = '#1a1a18';
+
+/* ==================== HELPERS ==================== */
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function sc(v, l) { return `<div class="stat-card"><div class="sv">${v}</div><div class="sl">${l}</div></div>`; }
+function dbadge(d) { return d==='easy' ? '<span class="badge badge-easy">Easy</span>' : d==='medium' ? '<span class="badge badge-med">Medium</span>' : '<span class="badge badge-hard">Hard</span>'; }
+function topicName(id) { return (STATE.topics.find(t => t.id === id) || {name:'—'}).name; }
+function studs() { return Object.keys(USERS).filter(k => USERS[k].role === 'student'); }
+function initials(name) { return name.split(' ').map(n => n[0]).join(''); }
+
+/* ==================== AUTH ==================== */
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-err');
+  const user = USERS[u];
+  if (!user || user.pass !== p) { err.textContent = 'Incorrect username or password.'; err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  CU = { id: u, ...user };
+  if (user.role === 'teacher') renderTeacher();
+  else renderStudent();
+}
+function doLogout() { CU = null; showScreen('login-screen'); document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = ''; }
+
+/* ==================== STUDENT HOME ==================== */
+function setDiff(d, btn) { currentDiff = d; document.querySelectorAll('.dpill').forEach(b => b.className = 'dpill'); btn.className = 'dpill a-' + d; renderTopicGrid(); }
+
+function renderStudent() {
+  showScreen('student-screen');
+  document.getElementById('s-greeting').textContent = 'Hello, ' + CU.name.split(' ')[0] + '!';
+  const sd = STATE.studentData[CU.id] || { done:0, correct:0, totalTime:0 };
+  const acc = sd.done ? Math.round(sd.correct/sd.done*100) : 0;
+  const avg = sd.done ? Math.round(sd.totalTime/sd.done) : 0;
+  document.getElementById('s-stats').innerHTML = sc(sd.done,'Done') + sc(sd.done ? acc+'%' : '—','Accuracy') + sc(sd.done ? avg+'s' : '—','Avg time') + sc(STATE.topics.length,'Topics');
+  const pinned = STATE.discussionItems.filter(d => d.pinned);
+  const noticeEl = document.getElementById('discuss-notice');
+  if (pinned.length) { noticeEl.style.display = 'flex'; document.getElementById('discuss-notice-text').textContent = `${pinned.length} question${pinned.length>1?'s are':' is'} pinned for class discussion`; }
+  else noticeEl.style.display = 'none';
+  renderTopicGrid();
+}
+
+function renderTopicGrid() {
+  const grid = document.getElementById('topic-grid'); grid.innerHTML = '';
+  STATE.topics.forEach(t => {
+    const qs = STATE.questions.filter(q => q.topicId === t.id && (currentDiff==='all' || q.diff===currentDiff));
+    const td = (STATE.studentData[CU.id]?.topicData || {})[t.id] || { done:0, correct:0 };
+    const pct = qs.length ? Math.min(Math.round(td.done/qs.length*100), 100) : 0;
+    const acc = td.done ? Math.round(td.correct/td.done*100) : null;
+    const div = document.createElement('div'); div.className = 'topic-card';
+    div.innerHTML = `<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;"><i class="ti ${t.icon}" style="font-size:20px;color:var(--text2);"></i>${currentDiff!=='all' ? dbadge(currentDiff) : ''}</div><div style="font-size:14px;font-weight:600;margin-bottom:3px;">${t.name}</div><div class="muted" style="font-size:12px;margin-bottom:8px;">${qs.length} questions${acc!==null?' · '+acc+'% acc':''}</div><div class="mini-bar"><div class="mini-fill" style="width:${pct}%"></div></div>`;
+    div.onclick = () => startTopic(t.id); grid.appendChild(div);
+  });
+}
+
+/* ==================== DISCUSSION (student) ==================== */
+function renderStudentDiscussion() {
+  const items = [...STATE.discussionItems].sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0));
+  document.getElementById('disc-s-count').textContent = items.length + ' questions';
+  const list = document.getElementById('disc-s-list'); list.innerHTML = '';
+  if (!items.length) { list.innerHTML = '<p class="muted">No questions flagged for discussion yet.</p>'; return; }
+  items.forEach(d => {
+    const myFlag = (STATE.studentFlags[CU.id] || []).includes(d.qId);
+    const flagCount = d.studentFlags ? d.studentFlags.length : 0;
+    const div = document.createElement('div'); div.className = 'disc-card' + (d.pinned ? ' pinned' : '');
+    div.innerHTML = `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">${d.pinned?'<span class="badge badge-purple"><i class="ti ti-pin"></i> Pinned</span>':''} ${dbadge(d.diff)} <span class="badge" style="background:var(--bg2);color:var(--text2);">${topicName(d.topicId)}</span></div>
+      <div style="font-size:14px;margin-bottom:${d.teacherNote?'10px':'0'};">${d.qText}</div>
+      ${d.teacherNote ? `<div class="fb fb-info" style="margin-bottom:10px;"><strong>Teacher's note:</strong> ${d.teacherNote}</div>` : ''}
+      <div class="row" style="flex-wrap:wrap;gap:8px;">
+        <span class="muted"><i class="ti ti-flag"></i> ${flagCount} student${flagCount!==1?'s':''} flagged this</span>
+        <button class="btn-flag ${myFlag?'flagged':''}" onclick="toggleStudentFlag('${d.qId}',this)"><i class="ti ti-flag"></i> ${myFlag?'Flagged by you':'Flag as confusing'}</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function toggleStudentFlag(qId, btn) {
+  if (!STATE.studentFlags[CU.id]) STATE.studentFlags[CU.id] = [];
+  const arr = STATE.studentFlags[CU.id];
+  const item = STATE.discussionItems.find(d => d.qId === qId);
+  const idx = arr.indexOf(qId);
+  if (idx === -1) {
+    arr.push(qId);
+    btn.className = 'btn-flag flagged'; btn.innerHTML = '<i class="ti ti-flag"></i> Flagged by you';
+    if (item && !item.studentFlags.includes(CU.id)) item.studentFlags.push(CU.id);
+  } else {
+    arr.splice(idx, 1);
+    btn.className = 'btn-flag'; btn.innerHTML = '<i class="ti ti-flag"></i> Flag as confusing';
+    if (item) item.studentFlags = item.studentFlags.filter(s => s !== CU.id);
+  }
+  saveState(); renderStudentDiscussion();
+}
+
+/* ==================== QUIZ ==================== */
+function startTopic(tid) {
+  currentTopic = STATE.topics.find(t => t.id === tid);
+  currentQList = STATE.questions.filter(q => q.topicId === tid && (currentDiff==='all' || q.diff===currentDiff));
+  if (!currentQList.length) { alert('No questions match this filter.'); return; }
+  currentQIdx = 0; sessionResults = [];
+  showScreen('quiz-screen');
+  document.getElementById('q-topic-lbl').textContent = currentTopic.name;
+  loadQ();
+}
+
+function loadQ() {
+  const q = currentQList[currentQIdx]; answered = false;
+  document.getElementById('q-num').textContent = `Question ${currentQIdx+1} of ${currentQList.length}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-prog').textContent = `${currentQIdx+1}/${currentQList.length}`;
+  document.getElementById('prog-fill').style.width = Math.round(currentQIdx/currentQList.length*100) + '%';
+  document.getElementById('q-diff-badge').innerHTML = dbadge(q.diff);
+  document.getElementById('fb-wrap').innerHTML = '';
+  document.getElementById('flag-area').style.display = 'none'; document.getElementById('flag-area').innerHTML = '';
+  document.getElementById('q-time-note').textContent = '';
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('scratch-text').value = '';
+  clearCanvas(); setMode('text');
+  const cw = document.getElementById('choices-wrap'); cw.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const el = document.createElement('div'); el.className = 'choice'; el.setAttribute('tabindex','0'); el.setAttribute('role','button');
+    el.innerHTML = `<div class="cletter">${['A','B','C','D'][i]}</div><div class="choice-text">${c}</div>`;
+    el.onclick = () => selectA(i); el.onkeydown = e => { if (e.key==='Enter'||e.key===' ') selectA(i); };
+    cw.appendChild(el);
+  });
+  startTimer();
+}
+
+function setMode(m) {
+  drawMode = m;
+  document.getElementById('canvas-wrap').style.display = m==='draw' ? 'block' : 'none';
+  document.getElementById('scratch-text').style.display = m==='draw' ? 'none' : 'block';
+  document.getElementById('draw-controls').style.display = m==='draw' ? 'flex' : 'none';
+  document.getElementById('btn-type').className = 'btn' + (m==='text' ? ' mode-active' : '');
+  document.getElementById('btn-draw').className = 'btn' + (m==='draw' ? ' mode-active' : '');
+}
+function setPenColor(dot) { document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active')); dot.classList.add('active'); penColor = dot.dataset.color; }
+function clearCanvas() { const c = document.getElementById('draw-canvas'); c.getContext('2d').clearRect(0,0,c.width,c.height); }
+function initCanvas() {
+  const canvas = document.getElementById('draw-canvas');
+  const getPos = (e) => { const r = canvas.getBoundingClientRect(); if (e.touches) return {x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top}; return {x:e.clientX-r.left,y:e.clientY-r.top}; };
+  const drawLine = (x,y) => { const ctx = canvas.getContext('2d'); ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.strokeStyle=penColor; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); lastX=x; lastY=y; };
+  canvas.addEventListener('mousedown', e => { drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; });
+  canvas.addEventListener('mousemove', e => { if(!drawing)return; const p=getPos(e); drawLine(p.x,p.y); });
+  canvas.addEventListener('mouseup', () => drawing=false); canvas.addEventListener('mouseleave', () => drawing=false);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; }, {passive:false});
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); if(!drawing)return; const p=getPos(e); drawLine(p.x,p.y); }, {passive:false});
+  canvas.addEventListener('touchend', () => drawing=false);
+}
+
+function startTimer() {
+  clearInterval(timerInterval); qStart = Date.now();
+  const t = document.getElementById('timer'); t.className = 'timer';
+  timerInterval = setInterval(() => {
+    const s = Math.round((Date.now()-qStart)/1000);
+    document.getElementById('timer-val').textContent = s + 's';
+    t.className = s >= 60 ? 'timer warn' : 'timer';
+  }, 500);
+}
+function stopTimer() { clearInterval(timerInterval); return Math.round((Date.now()-qStart)/1000); }
+
+function selectA(idx) {
+  if (answered) return; answered = true;
+  const elapsed = stopTimer();
+  const q = currentQList[currentQIdx];
+  const correct = idx === q.answer;
+  document.querySelectorAll('.choice').forEach((el,i) => { if(i===idx) el.classList.add(correct?'correct':'wrong'); if(!correct&&i===q.answer) el.classList.add('correct'); });
+  document.getElementById('fb-wrap').innerHTML = `<div class="fb ${correct?'fb-ok':'fb-bad'}"><i class="ti ${correct?'ti-circle-check':'ti-circle-x'}"></i> ${correct?'Correct!':'Incorrect — correct answer: '+['A','B','C','D'][q.answer]}${q.exp?' · '+q.exp:''} (${elapsed}s)</div>`;
+  document.getElementById('q-time-note').textContent = 'Time: ' + elapsed + 's';
+  document.getElementById('next-btn').disabled = false;
+
+  const scratchText = document.getElementById('scratch-text').value.trim();
+  let scratchImg = null;
+  if (drawMode === 'draw') { const c = document.getElementById('draw-canvas'); scratchImg = c.toDataURL(); }
+  const entry = { id:'w'+Date.now(), studentId:CU.id, studentName:CU.name, qId:q.id, qText:q.q, topicId:q.topicId, diff:q.diff, correct, time:elapsed, scratchText, scratchImg, teacherNote:'', ts:Date.now() };
+  STATE.workLog.unshift(entry);
+
+  const sd = STATE.studentData[CU.id] || (STATE.studentData[CU.id] = {done:0,correct:0,totalTime:0,topicData:{}});
+  sd.done++; sd.totalTime += elapsed; if (correct) sd.correct++;
+  const td = sd.topicData[currentTopic.id] || (sd.topicData[currentTopic.id] = {done:0,correct:0,totalTime:0});
+  td.done++; td.totalTime += elapsed; if (correct) td.correct++;
+  saveState();
+  sessionResults.push({ qIdx:currentQIdx, correct, time:elapsed, qText:q.q, diff:q.diff });
+
+  const isDiscussed = STATE.discussionItems.some(d => d.qId === q.id);
+  const flagArea = document.getElementById('flag-area'); flagArea.style.display = 'block';
+  const myFlag = (STATE.studentFlags[CU.id]||[]).includes(q.id);
+  if (isDiscussed) {
+    const item = STATE.discussionItems.find(d => d.qId === q.id);
+    flagArea.innerHTML = `<div class="fb fb-info"><i class="ti ti-messages"></i> Your teacher flagged this for class discussion${item.teacherNote?' — "'+item.teacherNote+'"':''}.</div>`;
+  } else {
+    flagArea.innerHTML = `<div class="row"><button class="btn-flag ${myFlag?'flagged':''}" id="q-flag-btn" onclick="flagQ('${q.id}','${q.topicId}','${q.diff}')"><i class="ti ti-flag"></i> ${myFlag?'Flagged as confusing':'Flag this question as confusing'}</button><span class="muted" style="font-size:11px;">Your teacher will see this</span></div>`;
+  }
+}
+
+function flagQ(qId, topicId, diff) {
+  const q = STATE.questions.find(q => q.id === qId);
+  if (!STATE.studentFlags[CU.id]) STATE.studentFlags[CU.id] = [];
+  const arr = STATE.studentFlags[CU.id];
+  if (!arr.includes(qId)) {
+    arr.push(qId);
+    let ex = STATE.discussionItems.find(d => d.qId === qId);
+    if (!ex) STATE.discussionItems.push({ id:'d'+Date.now(), qId, qText:q?q.q:'', topicId, diff, teacherNote:'', pinned:false, studentFlags:[CU.id], addedBy:'student', ts:Date.now() });
+    else if (!ex.studentFlags.includes(CU.id)) ex.studentFlags.push(CU.id);
+    saveState();
+    const btn = document.getElementById('q-flag-btn');
+    if (btn) { btn.className = 'btn-flag flagged'; btn.innerHTML = '<i class="ti ti-flag"></i> Flagged as confusing'; }
+  }
+}
+
+function nextQ() { currentQIdx++; if (currentQIdx >= currentQList.length) { showResults(); return; } loadQ(); }
+
+function showResults() {
+  showScreen('results-screen');
+  const total = sessionResults.length, correct = sessionResults.filter(r => r.correct).length;
+  const pct = Math.round(correct/total*100);
+  const avgT = Math.round(sessionResults.reduce((a,r) => a+r.time, 0)/total);
+  document.getElementById('res-title').textContent = currentTopic.name + ' complete';
+  document.getElementById('res-sub').textContent = `${correct} of ${total} correct · avg ${avgT}s per question`;
+  document.getElementById('res-pct').textContent = pct + '%';
+  const circ = 2*Math.PI*37;
+  document.getElementById('score-arc').setAttribute('stroke-dasharray', Math.round(pct/100*circ)+' '+circ);
+  document.getElementById('res-stats').innerHTML = sc(correct,'Correct') + sc(total,'Questions') + sc(avgT+'s','Avg time');
+  const log = document.getElementById('qlog-wrap'); log.innerHTML = '';
+  sessionResults.forEach((r,i) => {
+    const el = document.createElement('div'); el.className = 'qlog-item';
+    el.innerHTML = `<i class="ti ${r.correct?'ti-circle-check':'ti-circle-x'}" style="color:${r.correct?'var(--green)':'var(--red)'};font-size:16px;flex-shrink:0;"></i><span style="flex:1;color:var(--text2);">Q${i+1}: ${r.qText.length>52?r.qText.slice(0,52)+'…':r.qText}</span>${dbadge(r.diff)}<span class="muted" style="font-size:12px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:2px 8px;"><i class="ti ti-clock"></i> ${r.time}s</span>`;
+    log.appendChild(el);
+  });
+}
+
+function retryTopic() { startTopic(currentTopic.id); }
+function endQuiz() { clearInterval(timerInterval); renderStudent(); }
+
+/* ==================== TEACHER ==================== */
+function renderTeacher() {
+  showScreen('teacher-screen');
+  document.getElementById('t-sub').textContent = CU.name;
+  updateBadges(); renderTOverview();
+}
+
+function updateBadges() {
+  const unr = STATE.workLog.filter(w => !w.teacherNote).length;
+  const wb = document.getElementById('work-badge-num'); wb.textContent = unr; wb.style.display = unr ? 'inline-flex' : 'none';
+  const newFlags = STATE.discussionItems.filter(d => d.addedBy==='student' && !d.reviewed).length;
+  const db = document.getElementById('disc-badge'); db.textContent = newFlags; db.style.display = newFlags ? 'inline-flex' : 'none';
+}
+
+function showTab(id, btn) {
+  ['t-overview','t-discuss','t-work','t-students','t-upload'].forEach(i => document.getElementById(i).style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active');
+  if (id==='t-overview') renderTOverview();
+  if (id==='t-discuss') renderTDiscuss();
+  if (id==='t-work') renderTWork();
+  if (id==='t-students') renderTStudents();
+  if (id==='t-upload') renderTUpload();
+}
+
+function renderTOverview() {
+  let totalDone=0, totalCorrect=0;
+  studs().forEach(id => { const sd=STATE.studentData[id]||{}; totalDone+=sd.done||0; totalCorrect+=sd.correct||0; });
+  const acc = totalDone ? Math.round(totalCorrect/totalDone*100) : 0;
+  document.getElementById('t-overview').innerHTML = `
+    <div class="grid4" style="margin-bottom:1.25rem;">${sc(studs().length,'Students')+sc(totalDone,'Q answered')+sc(totalDone?acc+'%':'—','Class accuracy')+sc(STATE.discussionItems.length,'Flagged for discussion')}</div>
+    <div class="sec-label">Student performance</div>
+    <div class="card" style="padding:0;overflow:hidden;" id="t-ov-tbl"></div>
+    <div class="sec-label" style="margin-top:1.25rem;">Most-flagged questions</div>
+    <div id="t-flag-top"></div>`;
+  const tbl = document.getElementById('t-ov-tbl');
+  tbl.innerHTML = '<div class="s-row s-row-head"><div style="width:34px;"></div><div style="flex:1;padding-left:10px;">Student</div><div style="min-width:50px;text-align:right;">Done</div><div style="min-width:60px;text-align:right;">Accuracy</div><div style="min-width:65px;text-align:right;">Avg time</div><div style="min-width:80px;text-align:right;">Flags</div></div>';
+  studs().forEach(id => {
+    const u=USERS[id]; const sd=STATE.studentData[id]||{done:0,correct:0,totalTime:0};
+    const acc=sd.done?Math.round(sd.correct/sd.done*100):0; const avg=sd.done?Math.round(sd.totalTime/sd.done):0;
+    const flags=(STATE.studentFlags[id]||[]).length;
+    const accColor=acc>=80?'var(--green)':acc>=60?'var(--amber-text)':'var(--red)';
+    tbl.innerHTML += `<div class="s-row"><div class="avatar">${initials(u.name)}</div><div style="flex:1;padding-left:4px;"><div style="font-weight:600;font-size:13px;">${u.name}</div><div class="muted" style="font-size:11px;">@${id}</div></div><div style="min-width:50px;text-align:right;font-size:13px;color:var(--text2);">${sd.done}</div><div style="min-width:60px;text-align:right;font-size:13px;font-weight:600;color:${accColor};">${sd.done?acc+'%':'—'}</div><div style="min-width:65px;text-align:right;font-size:13px;color:var(--text2);">${sd.done?avg+'s':'—'}</div><div style="min-width:80px;text-align:right;"><span class="badge ${flags>0?'badge-flag':'badge-blue'}">${flags} flag${flags!==1?'s':''}</span></div></div>`;
+  });
+  const flagTop = document.getElementById('t-flag-top');
+  const sorted = [...STATE.discussionItems].sort((a,b) => (b.studentFlags?.length||0)-(a.studentFlags?.length||0)).slice(0,3);
+  if (!sorted.length) { flagTop.innerHTML = '<p class="muted">No flagged questions yet.</p>'; return; }
+  sorted.forEach(d => {
+    const fc = d.studentFlags ? d.studentFlags.length : 0;
+    const pct = Math.round(fc/studs().length*100);
+    flagTop.innerHTML += `<div class="card" style="margin-bottom:8px;"><div class="row-top" style="margin-bottom:6px;"><div style="flex:1;font-size:13px;">${d.qText}</div><span class="badge badge-flag"><i class="ti ti-flag"></i> ${fc} student${fc!==1?'s':''}</span></div><div style="display:flex;align-items:center;gap:8px;"><span class="muted" style="font-size:11px;">${topicName(d.topicId)}</span>${dbadge(d.diff)}</div><div class="mini-bar"><div class="mini-fill err-fill" style="width:${pct}%"></div></div></div>`;
+  });
+}
+
+function renderTDiscuss() {
+  const wrap = document.getElementById('t-discuss');
+  STATE.discussionItems.filter(d => d.addedBy==='student' && !d.reviewed).forEach(d => d.reviewed = true);
+  saveState(); updateBadges();
+  const sorted = [...STATE.discussionItems].sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || (b.studentFlags?.length||0)-(a.studentFlags?.length||0));
+  wrap.innerHTML = `<div class="row" style="margin-bottom:1rem;"><span class="muted">${sorted.length} question${sorted.length!==1?'s':''} flagged</span><div class="spacer"></div><button class="btn" onclick="addManualFlag()"><i class="ti ti-plus"></i> Add question</button></div><div id="disc-items"></div>`;
+  const container = document.getElementById('disc-items');
+  if (!sorted.length) { container.innerHTML = '<p class="muted">No questions flagged yet. Flag them from student work or add manually.</p>'; return; }
+  sorted.forEach(d => {
+    const fc = d.studentFlags ? d.studentFlags.length : 0;
+    const names = (d.studentFlags||[]).map(id => USERS[id]?.name.split(' ')[0] || id).join(', ');
+    const div = document.createElement('div'); div.className = 'disc-card' + (d.pinned?' pinned':''); div.style.marginBottom='10px';
+    div.innerHTML = `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">${d.pinned?'<span class="badge badge-purple"><i class="ti ti-pin"></i> Pinned</span>':''} ${dbadge(d.diff)} <span class="badge" style="background:var(--bg2);color:var(--text2);">${topicName(d.topicId)}</span>${d.addedBy==='student'?'<span class="badge badge-flag"><i class="ti ti-flag"></i> Student-flagged</span>':''}</div>
+      <div style="font-size:14px;margin-bottom:8px;">${d.qText}</div>
+      <div class="muted" style="font-size:12px;margin-bottom:10px;"><i class="ti ti-users"></i> ${fc} student${fc!==1?'s':''} flagged this${names?' ('+names+')':''}</div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;"><i class="ti ti-message"></i> Discussion note (visible to students)</label>
+        <div class="row" style="gap:6px;"><input type="text" id="dn-${d.id}" value="${d.teacherNote||''}" placeholder="Add context for students..." style="flex:1;font-size:13px;"/><button class="btn" onclick="saveDiscNote('${d.id}')" style="padding:7px 12px;"><i class="ti ti-check"></i></button></div>
+      </div>
+      <div class="row" style="gap:6px;flex-wrap:wrap;">
+        <button class="btn-discuss ${d.pinned?'active':''}" onclick="togglePin('${d.id}',this)"><i class="ti ti-pin"></i> ${d.pinned?'Unpin':'Pin for class'}</button>
+        <button class="btn" onclick="removeDiscuss('${d.id}')" style="color:var(--text2);font-size:12px;padding:6px 10px;"><i class="ti ti-trash"></i> Remove</button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function togglePin(id, btn) {
+  const d = STATE.discussionItems.find(i => i.id === id); if (!d) return;
+  d.pinned = !d.pinned; saveState(); renderTDiscuss();
+}
+function saveDiscNote(id) {
+  const d = STATE.discussionItems.find(i => i.id === id); if (!d) return;
+  d.teacherNote = document.getElementById('dn-'+id)?.value || ''; saveState();
+}
+function removeDiscuss(id) { STATE.discussionItems = STATE.discussionItems.filter(i => i.id !== id); saveState(); renderTDiscuss(); renderTOverview(); }
+function addManualFlag() {
+  const q = prompt('Enter the question text to flag for discussion:');
+  if (!q || !q.trim()) return;
+  STATE.discussionItems.push({ id:'d'+Date.now(), qId:'manual-'+Date.now(), qText:q.trim(), topicId:STATE.topics[0].id, diff:'medium', teacherNote:'', pinned:false, studentFlags:[], addedBy:'teacher', ts:Date.now() });
+  saveState(); renderTDiscuss(); updateBadges();
+}
+
+function renderTWork() {
+  const wrap = document.getElementById('t-work');
+  wrap.innerHTML = `<div class="row" style="margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
+    <select id="wf-s" onchange="applyWF()" style="min-width:130px;font-size:13px;"><option value="all">All students</option>${studs().map(id=>`<option value="${id}">${USERS[id].name}</option>`).join('')}</select>
+    <select id="wf-t" onchange="applyWF()" style="min-width:130px;font-size:13px;"><option value="all">All topics</option>${STATE.topics.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</select>
+    <select id="wf-r" onchange="applyWF()" style="font-size:13px;"><option value="all">All results</option><option value="wrong">Wrong only</option><option value="correct">Correct only</option></select>
+    <div class="spacer"></div><span class="muted" id="wf-cnt"></span></div><div id="work-entries"></div>`;
+  applyWF();
+}
+function applyWF() {
+  const fs=document.getElementById('wf-s')?.value||'all', ft=document.getElementById('wf-t')?.value||'all', fr=document.getElementById('wf-r')?.value||'all';
+  let entries = STATE.workLog;
+  if (fs!=='all') entries=entries.filter(w=>w.studentId===fs);
+  if (ft!=='all') entries=entries.filter(w=>w.topicId===ft);
+  if (fr==='wrong') entries=entries.filter(w=>!w.correct);
+  if (fr==='correct') entries=entries.filter(w=>w.correct);
+  document.getElementById('wf-cnt').textContent = entries.length + ' entries';
+  const container = document.getElementById('work-entries'); if (!container) return;
+  if (!entries.length) { container.innerHTML = '<p class="muted" style="font-style:italic;">No entries match this filter.</p>'; return; }
+  container.innerHTML = '';
+  entries.forEach(w => {
+    const isDisc = STATE.discussionItems.some(d => d.qId === w.qId);
+    const div = document.createElement('div'); div.className = 'work-card';
+    div.innerHTML = `<div class="row-top" style="margin-bottom:8px;">
+        <div class="avatar avatar-sm">${initials(w.studentName)}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${w.studentName}</div><div class="muted" style="font-size:11px;">${topicName(w.topicId)} · ${dbadge(w.diff)} · <i class="ti ti-clock"></i> ${w.time}s · ${new Date(w.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>
+        <i class="ti ${w.correct?'ti-circle-check':'ti-circle-x'}" style="color:${w.correct?'var(--green)':'var(--red)'};font-size:18px;flex-shrink:0;"></i>
+      </div>
+      <div style="font-size:13px;margin-bottom:8px;">${w.qText}</div>
+      ${(w.scratchText||w.scratchImg)?'<div class="muted" style="font-size:12px;margin-bottom:5px;"><i class="ti ti-pencil"></i> Student\'s work:</div>':'<div class="muted" style="font-size:13px;font-style:italic;margin-bottom:8px;">No work shown for this question.</div>'}
+      ${w.scratchText?`<div class="work-code" style="margin-bottom:8px;">${w.scratchText}</div>`:''}
+      ${w.scratchImg?`<img src="${w.scratchImg}" style="max-width:100%;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;" alt="Student drawn work"/>`:''}
+      <div style="margin-bottom:10px;">
+        <div class="muted" style="font-size:12px;margin-bottom:4px;"><i class="ti ti-message"></i> Teacher note</div>
+        ${w.teacherNote?`<div class="teacher-note-bubble">${w.teacherNote}</div><button class="btn" style="font-size:12px;margin-top:6px;" onclick="editNote('${w.id}',this)"><i class="ti ti-edit"></i> Edit</button>`:`<div class="row" style="gap:6px;"><input type="text" id="ni-${w.id}" placeholder="Add a note for this student..." style="flex:1;font-size:13px;"/><button class="btn" onclick="saveNote('${w.id}')" style="padding:7px 12px;"><i class="ti ti-send"></i></button></div>`}
+      </div>
+      <div class="row" style="gap:6px;flex-wrap:wrap;">
+        <button class="btn-discuss ${isDisc?'active':''}" onclick="toggleDiscFromWork('${w.qId}','${w.topicId}','${w.diff}','${w.qText.replace(/'/g,"\\'").replace(/\n/g,' ')}',this)"><i class="ti ti-messages"></i> ${isDisc?'In discussion':'Flag for discussion'}</button>
+        ${isDisc?'<span class="muted" style="font-size:11px;">Visible on discussion board</span>':''}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+function saveNote(wid) { const input=document.getElementById('ni-'+wid); if(!input||!input.value.trim())return; const e=STATE.workLog.find(w=>w.id===wid); if(e){e.teacherNote=input.value.trim();saveState();updateBadges();applyWF();} }
+function editNote(wid, btn) { const e=STATE.workLog.find(w=>w.id===wid); if(!e)return; const bub=btn.previousElementSibling; bub.innerHTML=`<input type="text" value="${e.teacherNote}" id="ne-${wid}" style="width:100%;font-size:13px;background:transparent;border:none;color:var(--blue-text);font-family:inherit;"/>`; btn.textContent='Save'; btn.onclick=()=>{const val=document.getElementById('ne-'+wid)?.value||'';e.teacherNote=val;saveState();updateBadges();applyWF();}; }
+function toggleDiscFromWork(qId, topicId, diff, qText, btn) {
+  const idx = STATE.discussionItems.findIndex(d => d.qId === qId);
+  if (idx === -1) {
+    STATE.discussionItems.push({ id:'d'+Date.now(), qId, qText, topicId, diff, teacherNote:'', pinned:false, studentFlags:[], addedBy:'teacher', ts:Date.now() });
+    btn.className = 'btn-discuss active'; btn.innerHTML = '<i class="ti ti-messages"></i> In discussion';
+    const s = document.createElement('span'); s.className = 'muted'; s.style.fontSize = '11px'; s.textContent = 'Visible on discussion board'; btn.parentNode.appendChild(s);
+  } else {
+    STATE.discussionItems.splice(idx, 1);
+    btn.className = 'btn-discuss'; btn.innerHTML = '<i class="ti ti-messages"></i> Flag for discussion';
+    const s = btn.nextElementSibling; if (s && s.tagName==='SPAN') s.remove();
+  }
+  saveState(); updateBadges();
+}
+
+function renderTStudents() {
+  document.getElementById('t-students').innerHTML = '<div class="card" style="padding:0;overflow:hidden;" id="t-st-tbl"></div>';
+  const tbl = document.getElementById('t-st-tbl');
+  tbl.innerHTML = '<div class="s-row s-row-head"><div style="width:34px;"></div><div style="flex:1;padding-left:10px;">Student</div><div style="min-width:50px;text-align:right;">Done</div><div style="min-width:65px;text-align:right;">Accuracy</div><div style="min-width:65px;text-align:right;">Avg time</div><div style="min-width:70px;text-align:right;">Flags</div></div>';
+  studs().forEach(id => {
+    const u=USERS[id]; const sd=STATE.studentData[id]||{done:0,correct:0,totalTime:0,topicData:{}};
+    const acc=sd.done?Math.round(sd.correct/sd.done*100):0; const avg=sd.done?Math.round(sd.totalTime/sd.done):0;
+    const flags=(STATE.studentFlags[id]||[]).length;
+    let topT='—', maxD=0;
+    Object.keys(sd.topicData||{}).forEach(tid => { if((sd.topicData[tid].done||0)>maxD){maxD=sd.topicData[tid].done;topT=topicName(tid);} });
+    tbl.innerHTML += `<div class="s-row"><div class="avatar">${initials(u.name)}</div><div style="flex:1;padding-left:4px;"><div style="font-size:13px;font-weight:600;">${u.name}</div><div class="muted" style="font-size:11px;">Most active: ${topT}</div></div><div style="min-width:50px;text-align:right;font-size:13px;color:var(--text2);">${sd.done}</div><div style="min-width:65px;text-align:right;font-size:13px;font-weight:600;">${sd.done?acc+'%':'—'}</div><div style="min-width:65px;text-align:right;font-size:13px;color:var(--text2);">${sd.done?avg+'s':'—'}</div><div style="min-width:70px;text-align:right;"><span class="badge ${flags>0?'badge-flag':'badge-blue'}">${flags} flag${flags!==1?'s':''}</span></div></div>`;
+  });
+}
+
+function renderTUpload() {
+  document.getElementById('t-upload').innerHTML = `
+    <div class="sec-label" style="margin-top:0;">Add a question</div>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div style="margin-bottom:10px;"><label class="muted" style="display:block;margin-bottom:5px;font-size:12px;">Question text</label><textarea id="new-q-text" rows="2" placeholder="Enter the question..."></textarea></div>
+      <div class="grid2" style="gap:8px;margin-bottom:10px;">
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Choice A</label><input id="nc-a" type="text"/></div>
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Choice B</label><input id="nc-b" type="text"/></div>
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Choice C</label><input id="nc-c" type="text"/></div>
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Choice D</label><input id="nc-d" type="text"/></div>
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+        <div style="min-width:80px;"><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Correct</label><select id="nc-ans"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>
+        <div style="min-width:140px;"><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Topic</label><select id="nc-topic">${STATE.topics.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</select></div>
+        <div style="min-width:110px;"><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Difficulty</label><select id="nc-diff"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></div>
+        <div style="flex:1;min-width:180px;"><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Explanation (optional)</label><input id="nc-exp" type="text" placeholder="Why is this the answer?"/></div>
+      </div>
+      <div class="row"><button class="btn-primary" onclick="addQuestion()"><i class="ti ti-plus"></i> Add question</button><span id="add-q-ok" style="display:none;font-size:13px;color:var(--green);"><i class="ti ti-check"></i> Added!</span></div>
+    </div>
+    <div class="sec-label">Add video resource</div>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="grid2" style="gap:8px;margin-bottom:10px;">
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Video title</label><input id="v-title" type="text" placeholder="e.g. Solving quadratics"/></div>
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">YouTube / video URL</label><input id="v-url" type="text" placeholder="https://youtube.com/watch?v=..."/></div>
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Topic</label><select id="v-topic">${STATE.topics.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</select></div>
+        <div><label class="muted" style="display:block;margin-bottom:4px;font-size:12px;">Duration (optional)</label><input id="v-dur" type="text" placeholder="e.g. 8:30"/></div>
+      </div>
+      <div class="row"><button class="btn-primary" onclick="addVideo()"><i class="ti ti-upload"></i> Add video</button><span id="add-v-ok" style="display:none;font-size:13px;color:var(--green);"><i class="ti ti-check"></i> Added!</span></div>
+    </div>
+    <div class="sec-label">Video library</div>
+    <div id="vid-lib">${STATE.videos.length ? STATE.videos.map(v=>`<div class="card" style="margin-bottom:8px;"><div class="row"><div style="width:44px;height:34px;background:var(--blue-bg);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-player-play" style="color:var(--blue);font-size:16px;"></i></div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${v.title}</div><div class="muted" style="font-size:11px;">${topicName(v.topicId)}${v.dur?' · '+v.dur:''}</div></div><a href="${v.url}" target="_blank" class="btn" style="font-size:12px;padding:5px 10px;">Open <i class="ti ti-external-link"></i></a></div></div>`).join('') : '<p class="muted">No videos added yet.</p>'}</div>`;
+}
+
+function addQuestion() {
+  const q=document.getElementById('new-q-text').value.trim();
+  const a=document.getElementById('nc-a').value.trim(),b=document.getElementById('nc-b').value.trim(),c=document.getElementById('nc-c').value.trim(),d=document.getElementById('nc-d').value.trim();
+  if (!q||!a||!b||!c||!d) { alert('Please fill in the question and all 4 choices.'); return; }
+  STATE.questions.push({ id:'q'+Date.now(), topicId:document.getElementById('nc-topic').value, diff:document.getElementById('nc-diff').value, q, choices:[a,b,c,d], answer:parseInt(document.getElementById('nc-ans').value), exp:document.getElementById('nc-exp').value.trim() });
+  saveState();
+  ['new-q-text','nc-a','nc-b','nc-c','nc-d','nc-exp'].forEach(id => document.getElementById(id).value = '');
+  const m=document.getElementById('add-q-ok'); m.style.display='inline-flex'; setTimeout(()=>m.style.display='none', 2000);
+}
+function addVideo() {
+  const title=document.getElementById('v-title').value.trim(), url=document.getElementById('v-url').value.trim();
+  if (!title||!url) { alert('Please enter a title and URL.'); return; }
+  STATE.videos.push({ id:'v'+Date.now(), topicId:document.getElementById('v-topic').value, title, url, dur:document.getElementById('v-dur').value.trim() });
+  saveState();
+  document.getElementById('v-title').value=''; document.getElementById('v-url').value=''; document.getElementById('v-dur').value='';
+  const m=document.getElementById('add-v-ok'); m.style.display='inline-flex'; setTimeout(()=>m.style.display='none', 2000);
+}
+
+/* ==================== INIT ==================== */
+initCanvas();
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
